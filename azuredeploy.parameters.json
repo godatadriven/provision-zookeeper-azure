@@ -1,0 +1,21 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmPrefix": {
+      "value": "zkServer"
+    },
+    "vmSize": {
+      "value": "Standard_A1"
+    },
+    "adminUsername": {
+      "value": "zkadmin"
+    },
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "scaleNumber": {
+      "value": 3
+    }
+  }
+}
