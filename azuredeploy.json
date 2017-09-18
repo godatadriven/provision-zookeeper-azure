@@ -108,7 +108,10 @@
     "nifiNicName": "nifiNic",
     "zookeeperVmExtensionName": "zookeeperExtension",
     "zookeeperCustomScriptFilePath": "[concat(variables('githubLink'), '/zookeeper.sh')]",
-    "zookeeperCustomScriptCommandToExecute": "sh zookeeper.sh"
+    "zookeeperCustomScriptCommandToExecute": "sh zookeeper.sh",
+    "nifiVmExtensionName": "nifiExtension",
+    "nifiCustomScriptFilePath": "[concat(variables('githubLink'), '/nifi.sh')]",
+    "nifiCustomScriptCommandToExecute": "sh nifi.sh"
   },
   "resources": [
     {
@@ -297,6 +300,125 @@
             "[variables('zookeeperCustomScriptFilePath')]"
           ],
           "commandToExecute": "[concat(variables('zookeeperCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('zookeeperNodeNumber'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat('nifiPublicIP', copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "nifiPublicIp",
+        "count": "[parameters('nifiNodeNumber')]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('nifiNicName'), copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "nifi",
+        "count": "[parameters('nifiNodeNumber')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig2",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[concat('10.0.2.', copyIndex(4))]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('nifiPublicIP', copyIndex()))]"
+              },
+              "subnet": {
+                "id": "[variables('nifiSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(parameters('nifiVmPrefix'), copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "zk",
+        "count": "[parameters('nifiNodeNumber')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nifiNicName'), copyIndex())]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetNameNifi'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetNameNifi'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('nifiVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('nifiVmPrefix'), copyIndex())]",
+          "adminUsername": "[parameters('nifiAdminUsername')]",
+          "adminPassword": "[parameters('nifiAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('osImagePublisher')]",
+            "offer": "[variables('osImageOffer')]",
+            "sku": "[variables('osVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'vhds/', 'osdisk', copyIndex(), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nifiNicName'), copyIndex()))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('nifiVmPrefix'), copyIndex(),'/', variables('nifiVmExtensionName'))]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "zk",
+        "count": "[parameters('nifiNodeNumber')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('nifiVmPrefix'), copyIndex())]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[variables('nifiCustomScriptFilePath')]"
+          ],
+          "commandToExecute": "[concat(variables('nifiCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('nifiNodeNumber'))]"
         }
       }
     }
