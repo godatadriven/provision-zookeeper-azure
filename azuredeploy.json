@@ -183,6 +183,19 @@
     },
     {
       "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat('zookeeperPublicIP', copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "zookeeperPublicIp",
+        "count": "[parameters('zookeeperNodeNumber')]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('zookeeperNicName'), copyIndex())]",
       "location": "[resourceGroup().location]",
@@ -200,6 +213,9 @@
             "properties": {
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[concat('10.0.1.', copyIndex(4))]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('zookeeperPublicIP', copyIndex()))]"
+              },
               "subnet": {
                 "id": "[variables('zookeeperSubnetRef')]"
               }
