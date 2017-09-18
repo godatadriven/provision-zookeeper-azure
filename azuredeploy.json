@@ -236,9 +236,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[parameters('osImagePublisher')]",
-            "offer": "[parameters('osImageOffer')]",
-            "sku": "[parameters('osImageSKU')]",
+            "publisher": "[variables('osImagePublisher')]",
+            "offer": "[variables('osImageOffer')]",
+            "sku": "[variables('osImageSKU')]",
             "version": "latest"
           },
           "osDisk": {
