@@ -9,92 +9,123 @@
         "description": "Storage Account type"
       }
     },
-    "vmPrefix": {
+    "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "zookeeper",
+      "defaultValue": "BigDataVNet",
       "metadata": {
-        "description": "VM name"
+        "description": "VNet name"
       }
     },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_A1",
-      "metadata": {
-        "description": "Size of the VM"
-      }
-    },
-    "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Admin username"
-      }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Admin password"
-      }
-    },
-    "scaleNumber": {
+    "zookeeperNodeNumber": {
       "type": "int",
       "defaultValue": 3,
       "metadata": {
         "description": "Number of Zookeeper nodes to provision"
       }
+    },
+    "zookeeperVmPrefix": {
+      "type": "string",
+      "defaultValue": "zookeeper",
+      "metadata": {
+        "description": "Zookeeper VM prefix"
+      }
+    },
+    "zookeeperVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of the Zookeeper VM"
+      }
+    },
+    "zookeeperAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Zookeeper admin username"
+      }
+    },
+    "zookeeperAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Zookeeper admin password"
+      }
+    },
+    "nifiNodeNumber": {
+      "type": "int",
+      "defaultValue": 3,
+      "metadata": {
+        "description": "Number of Zookeeper nodes to provision"
+      }
+    },
+    "nifiVmPrefix": {
+      "type": "string",
+      "defaultValue": "nifi",
+      "metadata": {
+        "description": "Nifi VM prefix"
+      }
+    },
+    "nifiVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of the Nifi VM"
+      }
+    },
+    "nifiAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "NiFi admin username"
+      }
+    },
+    "nifiAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Zookeeper admin password"
+      }
     }
   },
   "variables": {
+    "githubLink": "https://raw.githubusercontent.com/godatadriven/provision-zookeeper-azure/master/",
+    "storageAccountName": "[concat('bigdata', uniquestring(resourceGroup().id))]",
+    "vnetAddressPrefix": "10.0.0.0/16",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "gatewaySubnet": "GatewaySubnet",
+    "gatewaySubnetPrefix": "10.0.0.0/29",
+    "zookeeperSubnetName": "zookeeper",
+    "zookeeperSubnetPrefix": "10.0.1.0/24",
+    "zookeeperSubnetRef": "[concat(variables('vnetID'),'/subnets/', variables('zookeeperSubnetName'))]",
+    "nifiSubnetName": "nifi",
+    "nifiSubnetPrefix": "10.0.2.0/24",
+    "nifiSubnetRef": "[concat(variables('vnetID'),'/subnets/', variables('nifiSubnetName'))]",
+    "clusterSubnetName": "cluster",
+    "clusterSubnetPrefix": "10.0.3.0/24",
+    "availabilitySetNameZK": "zookeeperAvSet",
+    "availabilitySetNameNiFi": "nifiAvSet",
+    "zookeeperNicName": "zkNic",
+    "publicIPAddressType": "Dynamic",
     "osImagePublisher": "OpenLogic",
     "osImageOffer": "CentOS",
     "osVersion": "7.3",
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'zk')]",
-    "availabilitySetName": "zookeeperAvSet",
-    "virtualNetworkName": "zookeeperVNET",
-    "vnetAddressPrefix": "10.0.0.0/16",
-    "publicIPAddressType": "Dynamic",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-    "subnet1Name": "Subnet-1",
-    "subnet1Prefix": "10.0.0.0/24",
-    "nicName": "zookeeperNIC",
-    "subnet1Ref": "[concat(variables('vnetID'),'/subnets/', variables('subnet1Name'))]",
-    "customScriptFilePath": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/zookeeper-cluster-ubuntu-vm/zookeeper.sh",
-    "customScriptCommandToExecute": "sh zookeeper.sh",
-    "vmExtensionName": "zookeeperExtension"
+    "nifiNicName": "nifiNic",
+    "zookeeperVmExtensionName": "zookeeperExtension",
+    "zookeeperCustomScriptFilePath": "[concat(variables('githubLink'), '/zookeeper.sh')]",
+    "zookeeperCustomScriptCommandToExecute": "sh zookeeper.sh"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2017-06-01",
       "location": "[resourceGroup().location]",
-      "properties": {
-        "accountType": "[parameters('storageAccountType')]"
-      }
-    },
-    {
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[variables('availabilitySetName')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[resourceGroup().location]",
-      "properties": { }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat('publicIP', copyIndex())]",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "foo",
-        "count": "[parameters('scaleNumber')]"
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
       },
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
-      }
+      "kind": "Storage",
+      "properties": {}
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
+      "name": "[parameters('virtualNetworkName')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "addressSpace": {
@@ -104,26 +135,57 @@
         },
         "subnets": [
           {
-            "name": "[variables('subnet1Name')]",
+            "name": "[parameters('gatewaySubnet')]",
             "properties": {
-              "addressPrefix": "[variables('subnet1Prefix')]"
+              "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('zookeeperSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('zookeeperSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('nifiSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('nifiSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('clusterSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('clusterSubnetPrefix')]"
             }
           }
         ]
       }
     },
     {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('availabilitySetNameZK')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": { }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('availabilitySetNameNiFi')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": { }
+    },
+    {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('nicName'), copyIndex())]",
+      "name": "[concat(variables('zookeeperNicName'), copyIndex())]",
       "location": "[resourceGroup().location]",
       "copy": {
-        "name": "foo",
-        "count": "[parameters('scaleNumber')]"
+        "name": "zk",
+        "count": "[parameters('zookeeperNodeNumber')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', 'publicIP', copyIndex())]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -131,12 +193,9 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[concat('10.0.0.', copyIndex(4))]",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('publicIP', copyIndex()))]"
-              },
+              "privateIPAddress": "[concat('10.0.1.', copyIndex(4))]",
               "subnet": {
-                "id": "[variables('subnet1Ref')]"
+                "id": "[variables('zookeeperSubnetRef')]"
               }
             }
           }
@@ -146,28 +205,28 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(parameters('vmPrefix'), copyIndex())]",
+      "name": "[concat(parameters('zookeeperVmPrefix'), copyIndex())]",
       "location": "[resourceGroup().location]",
       "copy": {
-        "name": "foo",
-        "count": "[parameters('scaleNumber')]"
+        "name": "zk",
+        "count": "[parameters('zookeeperNodeNumber')]"
       },
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), copyIndex())]",
-        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('zookeeperNicName'), copyIndex())]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetNameZK'))]"
       ],
       "properties": {
         "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetName'))]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetNameZK'))]"
         },
         "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+          "vmSize": "[parameters('zookeeperVmSize')]"
         },
         "osProfile": {
-          "computerName": "[concat(parameters('vmPrefix'), copyIndex())]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "computerName": "[concat(parameters('zookeeperVmPrefix'), copyIndex())]",
+          "adminUsername": "[parameters('zookeeperAdminUsername')]",
+          "adminPassword": "[parameters('zookeeperAdminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -188,7 +247,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'), copyIndex()))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('zookeeperNicName'), copyIndex()))]"
             }
           ]
         }
@@ -196,15 +255,15 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmPrefix'), copyIndex(),'/', variables('vmExtensionName'))]",
+      "name": "[concat(parameters('zookeeperVmPrefix'), copyIndex(),'/', variables('zookeeperVmExtensionName'))]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "copy": {
-        "name": "foo",
-        "count": "[parameters('scaleNumber')]"
+        "name": "zk",
+        "count": "[parameters('zookeeperNodeNumber')]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmPrefix'), copyIndex())]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('zookeeperVmPrefix'), copyIndex())]"
       ],
       "properties": {
         "publisher": "Microsoft.Azure.Extensions",
@@ -213,9 +272,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[variables('customScriptFilePath')]"
+            "[variables('zookeeperCustomScriptFilePath')]"
           ],
-          "commandToExecute": "[concat(variables('customScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('scaleNumber'))]"
+          "commandToExecute": "[concat(variables('zookeeperCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('zookeeperNodeNumber'))]"
         }
       }
     }

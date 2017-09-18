@@ -1,21 +1,42 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "vmPrefix": {
-      "value": "zkServer"
+    "storageAccountType": {
+      "value": "Standard_LRS"
     },
-    "vmSize": {
+    "virtualNetworkName": {
+      "value": "BigDataVNet"
+    },
+    "zookeeperNodeNumber": {
+      "value": 3
+    },
+    "zookeeperVmPrefix": {
+      "value": "zookeeper"
+    },
+    "zookeeperVmSize": {
       "value": "Standard_A1"
     },
-    "adminUsername": {
+    "zookeeperAdminUsername": {
       "value": "zkadmin"
     },
-    "adminPassword": {
+    "zookeeperAdminPassword": {
       "value": "GEN-PASSWORD"
     },
-    "scaleNumber": {
+    "nifiNodeNumber": {
       "value": 3
+    },
+    "nifiVmPrefix": {
+      "value": "nifi"
+    },
+    "nifiVmSize": {
+      "value": "Standard_A1"
+    },
+    "nifiAdminUsername": {
+      "value": "nifiadmin"
+    },
+    "nifiAdminPassword": {
+      "value": "GEN-PASSWORD"
     }
   }
 }
