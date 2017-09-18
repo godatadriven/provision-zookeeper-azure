@@ -85,7 +85,7 @@
   },
   "variables": {
     "githubLink": "https://raw.githubusercontent.com/godatadriven/provision-zookeeper-azure/master/",
-    "storageAccountName": "[concat('bigdata', uniquestring(resourceGroup().id))]",
+    "storageAccountName": "bigdatanificluster",
     "vnetAddressPrefix": "10.0.0.0/16",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "gatewaySubnet": "gateway",
