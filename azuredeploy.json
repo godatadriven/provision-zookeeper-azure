@@ -88,7 +88,7 @@
     "storageAccountName": "[concat('bigdata', uniquestring(resourceGroup().id))]",
     "vnetAddressPrefix": "10.0.0.0/16",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-    "gatewaySubnet": "GatewaySubnet",
+    "gatewaySubnet": "gateway",
     "gatewaySubnetPrefix": "10.0.0.0/29",
     "zookeeperSubnetName": "zookeeper",
     "zookeeperSubnetPrefix": "10.0.1.0/24",
@@ -135,9 +135,9 @@
         },
         "subnets": [
           {
-            "name": "[parameters('gatewaySubnet')]",
+            "name": "[variables('gatewaySubnet')]",
             "properties": {
-              "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+              "addressPrefix": "[variables('gatewaySubnetPrefix')]"
             }
           },
           {
