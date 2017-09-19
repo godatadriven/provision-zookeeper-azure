@@ -20,12 +20,12 @@ cd $NIFI_HOME/nifi-$NIFI_VERSION
 # nifi.properties
 cd conf
 
-sed -i "s/^nifi.web.http.host=/nifi.web.http.host=10.0.2.$(($1+1))/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
+sed -i "s/^nifi.web.http.host=/nifi.web.http.host=nifi$(($1))/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
 sed -i "s/^nifi.web.http.port=8080/nifi.web.http.port=7070/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
-sed -i "s/^nifi.zookeeper.connect.string=/nifi.zookeeper.connect.string=10.0.1.1:2181,10.0.1.2:2181,10.0.1.3:2181/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
+sed -i "s/^nifi.zookeeper.connect.string=/nifi.zookeeper.connect.string=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
 sed -i "s/^nifi.cluster.is.node=/nifi.cluster.is.node=true/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
-sed -i "s/^nifi.cluster.node.address=/nifi.cluster.node.address=10.0.2.$(($1+1))/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
+sed -i "s/^nifi.cluster.node.address=/nifi.cluster.node.address=nifi$(($1))/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
 sed -i "s/^nifi.cluster.node.protocol.port=/nifi.cluster.node.protocol.port=12000/g" $NIFI_HOME/nifi-$NIFI_VERSION/conf/nifi.properties
 
 
-$NIFI_HOME/$NIFI_VERSION/bin/nifi.sh start
+$NIFI_HOME/nifi-$NIFI_VERSION/bin/nifi.sh start
