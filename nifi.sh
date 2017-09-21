@@ -2,7 +2,7 @@
 
 NIFI_INSTALL_ROOT=/opt
 NIFI_DATA_ROOT=/nifi
-DRIVENAME=/dev/sdc
+DRIVENAME=/dev/sdb
 
 createFolder() {
     if [ ! -d $1 ]; then
@@ -52,12 +52,12 @@ createNiFiFolders
 # set config files
 
 # nifi.properties
-sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$NIFI_DATA_DIR\/configuration\/flow\.xml\.gz/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$NIFI_DATA_DIR\/configuration\/archive/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.database\.directory=\).*/\1$NIFI_DATA_DIR\/repositories\/database_repository/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$NIFI_DATA_DIR\/repositories\/flowfile_repository/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.content\.repository\.directory.default=\).*/\1$NIFI_DATA_DIR\/repositories\/content_repository/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.provenance\.repository\.directory.default=\).*/\1$NIFI_DATA_DIR\/repositories\/provenance_repository/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$(($NIFI_DATA_DIR))\/configuration\/flow\.xml\.gz/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$(($NIFI_DATA_DIR))\/configuration\/archive/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.database\.directory=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/database_repository/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/flowfile_repository/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.content\.repository\.directory\.default=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/content_repository/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.provenance\.repository\.directory\.default=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/provenance_repository/" $NIFI_HOME_DIR/conf/nifi.properties
 
 sed -i "s/\(nifi\.web\.http\.host=\).*/\1nifi$(($1))/g" $NIFI_HOME_DIR/conf/nifi.properties
 sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_HOME_DIR/conf/nifi.properties
