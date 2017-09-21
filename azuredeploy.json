@@ -438,7 +438,7 @@
               "diskSizeGB": "50",
               "lun": 0,
               "vhd": {
-                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', 'nifi', copyIndex(), variables('storageAccountName')), '2015-06-15').primaryEndpoints.blob, uniquestring(concat(copyIndex(), 'nifi', resourceGroup().id)), '/', variables('vmName'), '-nifidisk.vhd')]"
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'nifivhds/', variables('vmName'), '-nifidisk.vhd')]"
               },
               "createOption": "Empty"
             }
