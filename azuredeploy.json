@@ -43,10 +43,10 @@
         "description": "Zookeeper admin username"
       }
     },
-    "zookeeperAdminPassword": {
-      "type": "securestring",
+    "zookeeperSshKeyData": {
+      "type": "string",
       "metadata": {
-        "description": "Zookeeper admin password"
+        "description": "Zookeeper SSH rsa public key file as a string."
       }
     },
     "nifiNodeNumber": {
@@ -76,10 +76,10 @@
         "description": "NiFi admin username"
       }
     },
-    "nifiAdminPassword": {
-      "type": "securestring",
+    "nifiSshKeyData": {
+      "type": "string",
       "metadata": {
-        "description": "Zookeeper admin password"
+        "description": "NiFi SSH rsa public key file as a string"
       }
     }
   },
@@ -112,7 +112,8 @@
     "zookeeperCustomScriptCommandToExecute": "sh zookeeper.sh",
     "nifiVmExtensionName": "nifiExtension",
     "nifiCustomScriptFilePath": "[concat(variables('githubLink'), '/nifi.sh')]",
-    "nifiCustomScriptCommandToExecute": "sh nifi.sh"
+    "nifiCustomScriptCommandToExecute": "sh nifi.sh",
+    "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
   },
   "resources": [
     {
@@ -296,7 +297,17 @@
         "osProfile": {
           "computerName": "[concat(parameters('zookeeperVmPrefix'), copyIndex())]",
           "adminUsername": "[parameters('zookeeperAdminUsername')]",
-          "adminPassword": "[parameters('zookeeperAdminPassword')]"
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('zookeeperSshKeyData')]"
+                }
+              ]
+            }
+          }
         },
         "storageProfile": {
           "imageReference": {
@@ -415,7 +426,17 @@
         "osProfile": {
           "computerName": "[concat(parameters('nifiVmPrefix'), copyIndex())]",
           "adminUsername": "[parameters('nifiAdminUsername')]",
-          "adminPassword": "[parameters('nifiAdminPassword')]"
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('nifiSshKeyData')]"
+                }
+              ]
+            }
+          }
         },
         "storageProfile": {
           "imageReference": {
