@@ -113,7 +113,8 @@
     "nifiVmExtensionName": "nifiExtension",
     "nifiCustomScriptFilePath": "[concat(variables('githubLink'), '/nifi.sh')]",
     "nifiCustomScriptCommandToExecute": "sh nifi.sh",
-    "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+    "zookeeperSshKeyPath": "[concat('/home/',parameters('zookeeperAdminUsername'),'/.ssh/authorized_keys')]",
+    "nifiSshKeyPath": "[concat('/home/',parameters('nifiAdminUsername'),'/.ssh/authorized_keys')]"
   },
   "resources": [
     {
@@ -302,7 +303,7 @@
             "ssh": {
               "publicKeys": [
                 {
-                  "path": "[variables('sshKeyPath')]",
+                  "path": "[variables('zookeeperSshKeyPath')]",
                   "keyData": "[parameters('zookeeperSshKeyData')]"
                 }
               ]
@@ -431,7 +432,7 @@
             "ssh": {
               "publicKeys": [
                 {
-                  "path": "[variables('sshKeyPath')]",
+                  "path": "[variables('nifiSshKeyPath')]",
                   "keyData": "[parameters('nifiSshKeyData')]"
                 }
               ]
