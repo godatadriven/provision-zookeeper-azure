@@ -16,7 +16,7 @@ createFolder $NIFI_DATA_ROOT
 
 mke2fs -F -t ext4 -b 4096 -E lazy_itable_init=1 -O sparse_super,dir_index,extent,has_journal,uninit_bg -m1 $DRIVENAME
 mount -o noatime,barrier=1 -t ext4 $DRIVENAME $NIFI_DATA_ROOT
-UUID=`sudo lsblk -no UUID $DRIVENAME`
+UUID=`lsblk -no UUID $DRIVENAME`
 echo "UUID=$UUID   $NIFI_DATA_ROOT    ext4   defaults,noatime,barrier=0 0 1" | sudo tee -a /etc/fstab
 
 NIFI_DATA_DIR=/nifi/data
@@ -35,35 +35,33 @@ rm nifi-$NIFI_VERSION-bin.tar.gz
 
 NIFI_HOME_DIR=$NIFI_INSTALL_ROOT/nifi-$NIFI_VERSION
 
-createNiFiFolders() {
-    CONFIGURATION=$NIFI_DATA_DIR/configuration
-    createFolder $CONFIGURATION
-    createFolder $CONFIGURATION/custom_lib
-    REPOSITORIES=$NIFI_DATA_DIR/repositories
-    createFolder $REPOSITORIES
-    createFolder $REPOSITORIES/database_repository
-    createFolder $REPOSITORIES/flowfile_repository
-    createFolder $REPOSITORIES/content_repository
-    createFolder $REPOSITORIES/provenance_repository
-}
-
-createNiFiFolders
+NIFI_CONFIGURATION=$NIFI_DATA_DIR/configuration
+createFolder $NIFI_CONFIGURATION
+createFolder $NIFI_CONFIGURATION/archive
+createFolder $NIFI_CONFIGURATION/custom_lib
+NIFI_REPOSITORIES=$NIFI_DATA_DIR/repositories
+createFolder $NIFI_REPOSITORIES
+createFolder $NIFI_REPOSITORIES/database_repository
+createFolder $NIFI_REPOSITORIES/flowfile_repository
+createFolder $NIFI_REPOSITORIES/content_repository
+createFolder $NIFI_REPOSITORIES/provenance_repository
 
 # set config files
+NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
 
 # nifi.properties
-sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$(($NIFI_DATA_DIR))\/configuration\/flow\.xml\.gz/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$(($NIFI_DATA_DIR))\/configuration\/archive/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.database\.directory=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/database_repository/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/flowfile_repository/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.content\.repository\.directory\.default=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/content_repository/" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.provenance\.repository\.directory\.default=\).*/\1$(($NIFI_DATA_DIR))\/repositories\/provenance_repository/" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$NIFI_CONFIGURATION\/flow\.xml\.gz/" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$NIFI_CONFIGURATION\/archive/" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.database\.directory=\).*/\1$NIFI_REPOSITORIES\/database_repository/" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$NIFI_REPOSITORIES\/flowfile_repository/" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.content\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/content_repository/" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.provenance\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/provenance_repository/" $NIFI_CONFIGURATION_FILE
 
-sed -i "s/\(nifi\.web\.http\.host=\).*/\1nifi$(($1))/g" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.cluster\.is\.node=\).*/\1true/g" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.cluster\.node\.address=\).*/\1nifi$(($1))/g" $NIFI_HOME_DIR/conf/nifi.properties
-sed -i "s/\(nifi\.cluster\.node\.protocol\.port=\).*/\112000/g" $NIFI_HOME_DIR/conf/nifi.properties
+sed -i "s/\(nifi\.web\.http\.host=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.cluster\.is\.node=\).*/\1true/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.cluster\.node\.address=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.cluster\.node\.protocol\.port=\).*/\112000/g" $NIFI_CONFIGURATION_FILE
 
 
 $NIFI_HOME_DIR/bin/nifi.sh start
