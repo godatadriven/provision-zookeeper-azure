@@ -22,6 +22,30 @@ echo "UUID=$UUID   $NIFI_DATA_ROOT    ext4   defaults,noatime,barrier=0 0 1" | s
 NIFI_DATA_DIR=/nifi/data
 NIFI_VERSION=1.3.0
 
+# increase number of file handles and forked processes
+
+cat  <<EOF > /etc/security/limits.d/99-username-limits.conf
+*  hard  nofile  50000
+*  soft  nofile  50000
+*  hard  nproc  10000
+*  soft  nproc  10000
+EOF
+
+# increase the number of TCP socket ports available
+
+sysctl -w net.ipv4.ip_local_port_range="10000 65000"
+
+# You don’t want your sockets to sit and linger too long given that you want to be able to quickly setup and teardown new sockets.
+
+sysctl -w net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait="1"
+
+# we don't want NiFi to swap
+sysctl vm.swappiness=0
+
+echo "vm.swappiness = 0" >> /etc/sysctl.conf
+
+sysctl -p
+
 # install Java 8
 cd /tmp
 wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u144-b01/090f390dda5b47b9b721c7dfaa008135/jdk-8u144-linux-x64.rpm"
@@ -50,12 +74,12 @@ createFolder $NIFI_REPOSITORIES/provenance_repository
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
 
 # nifi.properties
-sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$NIFI_CONFIGURATION\/flow\.xml\.gz/" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$NIFI_CONFIGURATION\/archive/" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.database\.directory=\).*/\1$NIFI_REPOSITORIES\/database_repository/" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$NIFI_REPOSITORIES\/flowfile_repository/" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.content\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/content_repository/" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.provenance\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/provenance_repository/" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$NIFI_CONFIGURATION\/flow\.xml\.gz/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$NIFI_CONFIGURATION\/archive/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.database\.directory=\).*/\1$NIFI_REPOSITORIES\/database_repository/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$NIFI_REPOSITORIES\/flowfile_repository/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.content\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/content_repository/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.provenance\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/provenance_repository/g" $NIFI_CONFIGURATION_FILE
 
 sed -i "s/\(nifi\.web\.http\.host=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_CONFIGURATION_FILE
