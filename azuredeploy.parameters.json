@@ -20,8 +20,8 @@
     "zookeeperAdminUsername": {
       "value": "zkadmin"
     },
-    "zookeeperAdminPassword": {
-      "value": "GEN-PASSWORD"
+    "zookeeperSshKeyData": {
+      "value": "GEN-SSH-PUB-KEY"
     },
     "nifiNodeNumber": {
       "value": 3
@@ -35,8 +35,8 @@
     "nifiAdminUsername": {
       "value": "nifiadmin"
     },
-    "nifiAdminPassword": {
-      "value": "GEN-PASSWORD"
+    "nifiAdminSshKeyData": {
+      "value": "GEN-SSH-PUB-KEY"
     }
   }
 }

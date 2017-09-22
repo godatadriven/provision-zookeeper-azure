@@ -76,7 +76,7 @@
         "description": "NiFi admin username"
       }
     },
-    "nifiSshKeyData": {
+    "nifiAdminSshKeyData": {
       "type": "string",
       "metadata": {
         "description": "NiFi SSH rsa public key file as a string"
@@ -433,7 +433,7 @@
               "publicKeys": [
                 {
                   "path": "[variables('nifiSshKeyPath')]",
-                  "keyData": "[parameters('nifiSshKeyData')]"
+                  "keyData": "[parameters('nifiAdminSshKeyData')]"
                 }
               ]
             }
