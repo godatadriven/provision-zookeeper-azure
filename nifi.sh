@@ -10,7 +10,7 @@ if [[ $scsiOutput =~ \[5:0:0:LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
 then
         DRIVENAME=${BASH_REMATCH[1]};
 else
-        echo "lsscsi output not as expected for $lun"
+        echo "lsscsi output not as expected for $LUN_NR"
         exit -1;
 fi
 
