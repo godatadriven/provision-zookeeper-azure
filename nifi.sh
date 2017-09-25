@@ -26,8 +26,8 @@ createFolder $NIFI_DATA_ROOT
 
 mke2fs -F -t ext4 -b 4096 -E lazy_itable_init=1 -O sparse_super,dir_index,extent,has_journal,uninit_bg -m1 $DRIVENAME
 mount -o noatime,barrier=1 -t ext4 $DRIVENAME $NIFI_DATA_ROOT
-UUID=`lsblk -no UUID $DRIVENAME`
-echo "UUID=$UUID   $NIFI_DATA_ROOT    ext4   defaults,noatime,barrier=0 0 1" | sudo tee -a /etc/fstab
+UUID=`lsblk -no UUID $DRIVENAME | sed '/^$/d'`
+echo "UUID=$UUID   $NIFI_DATA_ROOT    ext4   defaults,noatime,barrier=0 0 1" | tee -a /etc/fstab
 
 NIFI_DATA_DIR=/nifi/data
 NIFI_VERSION=1.3.0
@@ -84,12 +84,12 @@ createFolder $NIFI_REPOSITORIES/provenance_repository
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
 
 # nifi.properties
-sed -i "s/\(nifi\.flow\.configuration\.file=\).*/\1$NIFI_CONFIGURATION\/flow\.xml\.gz/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.flow\.configuration\.archive\.dir=\).*/\1$NIFI_CONFIGURATION\/archive/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.database\.directory=\).*/\1$NIFI_REPOSITORIES\/database_repository/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.flowfile\.repository\.directory=\).*/\1$NIFI_REPOSITORIES\/flowfile_repository/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.content\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/content_repository/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.provenance\.repository\.directory\.default=\).*/\1$NIFI_REPOSITORIES\/provenance_repository/g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.flow\.configuration\.file=\).*|\1$NIFI_CONFIGURATION\/flow\.xml\.gz|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.flow\.configuration\.archive\.dir=\).*|\1$NIFI_CONFIGURATION\/archive|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.database\.directory=\).*|\1$NIFI_REPOSITORIES\/database_repository|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.flowfile\.repository\.directory=\).*|\1$NIFI_REPOSITORIES\/flowfile_repository|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.content\.repository\.directory\.default=\).*|\1$NIFI_REPOSITORIES\/content_repository|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.provenance\.repository\.directory\.default=\).*|\1$NIFI_REPOSITORIES\/provenance_repository|g" $NIFI_CONFIGURATION_FILE
 
 sed -i "s/\(nifi\.web\.http\.host=\).*/\10.0.0.0/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_CONFIGURATION_FILE
