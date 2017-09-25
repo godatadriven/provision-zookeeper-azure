@@ -6,7 +6,7 @@ NIFI_DATA_ROOT=/nifi
 # https://github.com/Azure/azure-sdk-for-go/issues/315
 LUN_NR=0
 scsiOutput=$(lsscsi)
-if [[ $scsiOutput =~ \[5:0:0:LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
+if [[ $scsiOutput =~ \[5:0:0:$LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
 then
         DRIVENAME=${BASH_REMATCH[1]};
 else
