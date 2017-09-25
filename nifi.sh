@@ -4,7 +4,7 @@ NIFI_INSTALL_ROOT=/opt
 NIFI_DATA_ROOT=/nifi
 # we need to look up driver name for lun 0
 # https://github.com/Azure/azure-sdk-for-go/issues/315
-LUN_NR=0
+LUN_NR=1
 scsiOutput=$(lsscsi)
 if [[ $scsiOutput =~ \[5.*$LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
 then
