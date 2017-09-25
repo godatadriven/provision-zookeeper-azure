@@ -25,9 +25,9 @@ createFolder $NIFI_DATA_ROOT
 # mount extra disk
 
 mke2fs -F -t ext4 -b 4096 -E lazy_itable_init=1 -O sparse_super,dir_index,extent,has_journal,uninit_bg -m1 $DRIVENAME
-mount -o noatime,barrier=1 -t ext4 $DRIVENAME $NIFI_DATA_ROOT
 UUID=`lsblk -no UUID $DRIVENAME | sed '/^$/d'`
 echo "UUID=$UUID   $NIFI_DATA_ROOT    ext4   defaults,noatime,barrier=0 0 1" | tee -a /etc/fstab
+mount $NIFI_DATA_ROOT
 
 NIFI_DATA_DIR=/nifi/data
 NIFI_VERSION=1.3.0
@@ -47,7 +47,7 @@ sysctl -w net.ipv4.ip_local_port_range="10000 65000"
 
 # You don’t want your sockets to sit and linger too long given that you want to be able to quickly setup and teardown new sockets.
 
-sysctl -w net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait="1"
+sysctl -w net.netfilter.nf_conntrack_tcp_timeout_time_wait="1"
 
 # we don't want NiFi to swap
 sysctl vm.swappiness=0
@@ -82,6 +82,9 @@ createFolder $NIFI_REPOSITORIES/provenance_repository
 
 # set config files
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
+
+echo -e "\nexport JAVA_HOME=\"/usr/java/latest/\"" >> $NIFI_HOME_DIR/bin/nifi-env.sh
+echo -e "\nnifi.nar.library.directory.custom=$NIFI_CONFIGURATION/custom_lib" >> $NIFI_HOME/$NIFI_VERSION/conf/nifi.properties
 
 # nifi.properties
 sed -i "s|\(nifi\.flow\.configuration\.file=\).*|\1$NIFI_CONFIGURATION\/flow\.xml\.gz|g" $NIFI_CONFIGURATION_FILE
