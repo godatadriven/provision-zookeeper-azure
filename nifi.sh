@@ -2,17 +2,18 @@
 
 NIFI_INSTALL_ROOT=/opt
 NIFI_DATA_ROOT=/nifi
-# we need to look up driver name for lun 0
+# we need to look up driver name for lun 1
 # https://github.com/Azure/azure-sdk-for-go/issues/315
-LUN_NR=1
-scsiOutput=$(lsscsi)
-if [[ $scsiOutput =~ \[5.*$LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
-then
-        DRIVENAME=${BASH_REMATCH[1]};
-else
-        echo "lsscsi output not as expected for $LUN_NR"
-        exit -1;
-fi
+#LUN_NR=1
+#scsiOutput=$(lsscsi)
+#if [[ $scsiOutput =~ \[5.*$LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
+#then
+#        DRIVENAME=${BASH_REMATCH[1]};
+#else
+#        echo "lsscsi output not as expected for $LUN_NR"
+#        exit -1;
+#fi
+DRIVENAME=/dev/sdc
 
 createFolder() {
     if [ ! -d $1 ]; then
