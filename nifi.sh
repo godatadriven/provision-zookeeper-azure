@@ -143,7 +143,7 @@ sed -i "s|\(nifi\.flowfile\.repository\.directory=\).*|\1$NIFI_REPOSITORIES\/flo
 sed -i "s|\(nifi\.content\.repository\.directory\.default=\).*|\1$NIFI_REPOSITORIES\/content_repository|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.provenance\.repository\.directory\.default=\).*|\1$NIFI_REPOSITORIES\/provenance_repository|g" $NIFI_CONFIGURATION_FILE
 
-sed -i "s/\(nifi\.web\.http\.host=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.web\.http\.host=\).*/\1nifi/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.cluster\.is\.node=\).*/\1true/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.cluster\.node\.address=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
