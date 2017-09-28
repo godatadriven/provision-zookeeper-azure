@@ -2,18 +2,6 @@
 
 NIFI_INSTALL_ROOT=/opt
 NIFI_DATA_ROOT=/nifi
-# we need to look up driver name for lun 1
-# https://github.com/Azure/azure-sdk-for-go/issues/315
-#LUN_NR=1
-#scsiOutput=$(lsscsi)
-#if [[ $scsiOutput =~ \[5.*$LUN_NR\][^\[]*(/dev/sd[a-zA-Z]{1,2}) ]];
-#then
-#        DRIVENAME=${BASH_REMATCH[1]};
-#else
-#        echo "lsscsi output not as expected for $LUN_NR"
-#        exit -1;
-#fi
-DRIVENAME=/dev/sdc
 
 createFolder() {
     if [ ! -d $1 ]; then
@@ -23,14 +11,74 @@ createFolder() {
 
 createFolder $NIFI_DATA_ROOT
 
-# mount extra disk
+prepare_disk()
+{
+  mount=$1
+  device=$2
 
-mke2fs -F -t ext4 -b 4096 -E lazy_itable_init=1 -O sparse_super,dir_index,extent,has_journal,uninit_bg -m1 $DRIVENAME
-UUID=`lsblk -no UUID $DRIVENAME | sed '/^$/d'`
-echo "UUID=$UUID   $NIFI_DATA_ROOT    ext4   defaults,noatime,barrier=0 0 1" | tee -a /etc/fstab
-mount $NIFI_DATA_ROOT
+  FS=ext4
+  FS_OPTS="-E lazy_itable_init=1"
 
-NIFI_DATA_DIR=/nifi/data
+  which mkfs.$FS
+  # Fall back to ext3
+  if [[ $? -ne 0 ]]; then
+    FS=ext3
+    FS_OPTS=""
+  fi
+
+  # is device mounted?
+  mount | grep -q "${device}"
+  if [ $? == 0 ]; then
+    echo "$device is mounted"
+  else
+    echo "Warning: ERASING CONTENTS OF $device"
+    mkfs.$FS -F $FS_OPTS $device -m 0
+
+    # If $FS is ext3 or ext4, then run tune2fs -i 0 -c 0 to disable fsck checks for data volumes
+
+    if [ $FS = "ext3" -o $FS = "ext4" ]; then
+    /sbin/tune2fs -i0 -c0 ${device}
+    fi
+
+    echo "Mounting $device on $mount"
+    if [ ! -e "${mount}" ]; then
+      createFolder "${mount}"
+    fi
+    # gather the UUID for the specific device
+
+    blockid=$(/sbin/blkid|grep ${device}|awk '{print $2}'|awk -F\= '{print $2}'|sed -e"s/\"//g")
+    echo $blockid
+
+    #mount -o defaults,noatime "${device}" "${mount}"
+
+    # Set up the blkid for device entry in /etc/fstab
+
+    echo "UUID=${blockid} $mount $FS defaults,noatime,discard,barrier=0 0 0" >> /etc/fstab
+    mount ${mount}
+
+  fi
+}
+
+MOUNTED_VOLUMES=$(df -h | grep -o -E "^/dev/[^[:space:]]*")
+ALL_PARTITIONS=$(awk 'FNR > 2 {print $NF}' /proc/partitions)
+COUNTER=0
+for part in $ALL_PARTITIONS; do
+  if [[ ! ${part} =~ [0-9]$ && ! ${ALL_PARTITIONS} =~ $part[0-9] && $MOUNTED_VOLUMES != *$part* ]];then
+      echo ${part}
+      prepare_disk "$NIFI_DATA_ROOT$COUNTER" "/dev/$part"
+      COUNTER=$(($COUNTER+1))
+  fi
+done
+
+# we're only interested in one disk
+
+FIRST_DISK=/nifi0
+if [ ! -d "$FIRST_DISK" ]; then
+    echo "disk not mounted /nifi0 doesn't exist"
+    exit -1
+fi
+
+NIFI_DATA_DIR=${FIRST_DISK}/data
 NIFI_VERSION=1.3.0
 
 # increase number of file handles and forked processes
