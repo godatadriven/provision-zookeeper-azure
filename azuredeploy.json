@@ -81,6 +81,12 @@
       "metadata": {
         "description": "NiFi SSH rsa public key file as a string"
       }
+    },
+    "keystorePassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Keystore password in the NiFi machines"
+      }
     }
   },
   "variables": {
@@ -496,7 +502,7 @@
           "fileUris": [
             "[variables('nifiCustomScriptFilePath')]"
           ],
-          "commandToExecute": "[concat(variables('nifiCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('nifiNodeNumber'))]"
+          "commandToExecute": "[concat(variables('nifiCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('nifiNodeNumber'), ' ', parameters('keystorePassword'))]"
         }
       }
     }

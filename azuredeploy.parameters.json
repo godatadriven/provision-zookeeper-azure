@@ -37,6 +37,9 @@
     },
     "nifiAdminSshKeyData": {
       "value": "GEN-SSH-PUB-KEY"
+    },
+    "keystorePassword": {
+      "value": "GEN-PASSWORD"
     }
   }
 }
