@@ -3,6 +3,16 @@
 NIFI_INSTALL_ROOT=/opt
 NIFI_DATA_ROOT=/nifi
 
+args=("$@")
+# get number of elements
+ELEMENTS=${#args[@]}
+
+# echo each element in array
+# for loop
+for (( i=0;i<$ELEMENTS;i++)); do
+    echo ${args[${i}]} >> /tmp/calls
+done
+
 createFolder() {
     if [ ! -d $1 ]; then
         sudo mkdir -p $1
