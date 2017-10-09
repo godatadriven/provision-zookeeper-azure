@@ -136,6 +136,8 @@ keytool -genkeypair -alias nifiserver${1} -keyalg RSA -keypass ${3} -storepass $
 keytool -export -alias nifiserver${1} -keystore server_keystore.jks -rfc -file test.cer -storepass ${3}
 keytool -importcert -alias nifiserver${1} -file test.cer -keystore server_truststore.jks -storepass ${3} -noprompt
 
+#turn off history expension, otherwise we cannot have exclamation mark in the password
+set +H
 
 # set config files
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
