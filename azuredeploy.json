@@ -164,7 +164,7 @@
               "description": "Allow NiFi",
               "protocol": "Tcp",
               "sourcePortRange": "*",
-              "destinationPortRange": "8080",
+              "destinationPortRange": "8443",
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
