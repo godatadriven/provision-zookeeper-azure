@@ -136,8 +136,6 @@ keytool -genkeypair -alias nifiserver${1} -keyalg RSA -keypass ${3} -storepass $
 keytool -export -alias nifiserver${1} -keystore server_keystore.jks -rfc -file test.cer -storepass ${3}
 keytool -importcert -alias nifiserver${1} -file test.cer -keystore server_truststore.jks -storepass ${3} -noprompt
 
-#turn off history expension, otherwise we cannot have exclamation mark in the password
-set +H
 
 # set config files
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
@@ -163,11 +161,11 @@ sed -i "s/\(nifi\.zookeeper\.root\.node=\).*/\1\/root\/nifi$(($1))/g" $NIFI_CONF
 
 sed -i "s|\(nifi\.security\.keystore=\).*|\1$NIFI_HOME_DIR\/conf\/server_keystore.jks|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.keystoreType=\).*|\1JKS|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.keystorePasswd=\).*|\1$(($3))|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.keyPasswd=\).*|\1$(($3))|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.security\.keystorePasswd=\).*|\1"$3"|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.security\.keyPasswd=\).*|\1"$3"|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.truststore=\).*|\1$NIFI_HOME_DIR\/conf\/server_truststore.jks|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.truststoreType=\).*|\1JKS|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.truststorePasswd=\).*|\1$(($3))|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.security\.truststorePasswd=\).*|\1"$3"|g" $NIFI_CONFIGURATION_FILE
 
 sed -i "s/\(nifi\.web\.https\.host=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.web\.https\.port=\).*/\18443/g" $NIFI_CONFIGURATION_FILE
