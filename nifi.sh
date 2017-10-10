@@ -159,7 +159,7 @@ sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2
 sed -i "s/\(nifi\.cluster\.is\.node=\).*/\1true/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.cluster\.node\.address=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.cluster\.node\.protocol\.port=\).*/\112000/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.zookeeper\.root\.node=\).*/\1\/root\/nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
+sed -i "s/\(nifi\.zookeeper\.root\.node=\).*/\1\/root\/nifi/g" $NIFI_CONFIGURATION_FILE
 
 sed -i "s|\(nifi\.security\.keystore=\).*|\1$NIFI_HOME_DIR\/conf\/server_keystore.jks|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.keystoreType=\).*|\1JKS|g" $NIFI_CONFIGURATION_FILE
