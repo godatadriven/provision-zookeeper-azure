@@ -136,6 +136,7 @@ keytool -genkeypair -alias nifi${1} -keyalg RSA -keypass ${3} -storepass ${3} -k
 keytool -export -alias nifi${1} -keystore server_keystore.jks -rfc -file test.cer -storepass ${3}
 keytool -importcert -alias nifi${1} -file test.cer -keystore server_truststore.jks -storepass ${3} -noprompt
 
+# get admin user cert from fileshare and add truststore
 
 # set config files
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
@@ -151,8 +152,6 @@ sed -i "s|\(nifi\.flowfile\.repository\.directory=\).*|\1$NIFI_REPOSITORIES\/flo
 sed -i "s|\(nifi\.content\.repository\.directory\.default=\).*|\1$NIFI_REPOSITORIES\/content_repository|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.provenance\.repository\.directory\.default=\).*|\1$NIFI_REPOSITORIES\/provenance_repository|g" $NIFI_CONFIGURATION_FILE
 
-sed -i "s/\(nifi\.web\.http\.host=\).*/\1/g" $NIFI_CONFIGURATION_FILE
-sed -i "s/\(nifi\.web\.http\.port=\).*/\1/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.zookeeper\.connect\.string=\).*/\1zookeeper0:2181,zookeeper1:2181,zookeeper2:2181/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.cluster\.is\.node=\).*/\1true/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.cluster\.node\.address=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
@@ -172,5 +171,17 @@ sed -i "s|\(nifi\.cluster\.protocol\.is\.secure=\).*|\1true|g" $NIFI_CONFIGURATI
 
 sed -i "s/\(nifi\.web\.https\.host=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.web\.https\.port=\).*/\18443/g" $NIFI_CONFIGURATION_FILE
+
+# add admin to authorized users
+
+sed -i "s|\(property name=\"Initial Admin Identity\">\).*|\1CN=NiFi Admin,C=NL,L=Utrecht</property>|g" $NIFI_HOME_DIR/conf/authorizers.xml
+
+for (( c=0; c<${2}; c++ ))
+do
+    sed -i '' '/<\/authorizer>/i \
+    <property name="Node Identity '$c'">CN=nifi'$c'<\/property>
+    ' authorizers.xml
+done
+
 
 $NIFI_HOME_DIR/bin/nifi.sh start
