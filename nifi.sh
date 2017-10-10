@@ -177,11 +177,11 @@ sed -i "s/\(nifi\.web\.https\.port=\).*/\18443/g" $NIFI_CONFIGURATION_FILE
 
 # add admin to authorized users
 
-sed -i "s|\(property name=\"Initial Admin Identity\">\).*|\1CN=NiFi Admin,C=NL,L=Utrecht</property>|g" $NIFI_HOME_DIR/conf/authorizers.xml
+sed -i "s|\(property name=\"Initial Admin Identity\">\).*|\1L=Utrecht, C=NL, CN=NiFi Admin</property>|g" $NIFI_HOME_DIR/conf/authorizers.xml
 
-for (( c=0; c<${2}; c++ ))
+for (( c=0; c<$2; c++ ))
 do
-    sed -i '' '/<\/authorizer>/i \
+    sed -i '/<\/authorizer>/i \
     <property name="Node Identity '$c'">CN=nifi'$c'<\/property>
     ' $NIFI_HOME_DIR/conf/authorizers.xml
 done
