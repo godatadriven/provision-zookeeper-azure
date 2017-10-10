@@ -87,7 +87,19 @@
       "metadata": {
         "description": "Keystore password in the NiFi machines"
       }
-    }
+    },
+    "vaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure Key vault where the Nifi admin certificate is stored"
+      }
+    },
+    "secretUrlForCert": {
+      "type": "string",
+      "metadata": {
+        "description": "full Key Vault Id to the secret that stores the cert"
+      }
+    },
   },
   "variables": {
     "githubLink": "https://raw.githubusercontent.com/godatadriven/provision-zookeeper-azure/master/",
@@ -415,7 +427,7 @@
       "name": "[concat(parameters('nifiVmPrefix'), copyIndex())]",
       "location": "[resourceGroup().location]",
       "copy": {
-        "name": "zk",
+        "name": "nifi",
         "count": "[parameters('nifiNodeNumber')]"
       },
       "dependsOn": [
@@ -443,7 +455,19 @@
                 }
               ]
             }
-          }
+          },
+          "secrets": [
+            {
+              "sourceVault": {
+                "id": "['Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+              },
+              "vaultCertificates": [
+                {
+                  "certificateUrl": "[parameters('secretUrlForCert')]"
+                }
+              ]
+            }
+          ]
         },
         "storageProfile": {
           "imageReference": {

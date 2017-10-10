@@ -40,6 +40,12 @@
     },
     "keystorePassword": {
       "value": "GEN-PASSWORD"
-    }
+    },
+    "vaultName": {
+      "value": "nifiCert"
+    },
+   "secretUrlForCert": {
+     "value": "REPLACE_CERTURL"
+   }
   }
 }
