@@ -99,7 +99,7 @@
       "metadata": {
         "description": "full Key Vault Id to the secret that stores the cert"
       }
-    },
+    }
   },
   "variables": {
     "githubLink": "https://raw.githubusercontent.com/godatadriven/provision-zookeeper-azure/master/",
@@ -459,7 +459,7 @@
           "secrets": [
             {
               "sourceVault": {
-                "id": "['Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+                "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
               },
               "vaultCertificates": [
                 {
