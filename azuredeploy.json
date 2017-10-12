@@ -94,10 +94,16 @@
         "description": "The Azure Key vault where the Nifi admin certificate is stored"
       }
     },
-    "secretUrlForCert": {
+    "hostSecretUrlForCert": {
       "type": "string",
       "metadata": {
-        "description": "full Key Vault Id to the secret that stores the cert"
+        "description": "full Key Vault Id to the secret that stores the host cert"
+      }
+    },
+    "adminSecretUrlForCert": {
+      "type": "string",
+      "metadata": {
+        "description": "full Key Vault Id to the secret that stores the admin cert"
       }
     }
   },
@@ -463,7 +469,10 @@
               },
               "vaultCertificates": [
                 {
-                  "certificateUrl": "[parameters('secretUrlForCert')]"
+                  "certificateUrl": "[parameters('adminSecretUrlForCert')]"
+                },
+                {
+                  "certificateUrl": "[parameters('hostSecretUrlForCert')]"
                 }
               ]
             }

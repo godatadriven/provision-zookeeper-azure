@@ -44,7 +44,10 @@
     "vaultName": {
       "value": "nifiCert"
     },
-   "secretUrlForCert": {
+    "hostSecretUrlForCert": {
+      "value": "REPLACE_CERTURL"
+    },
+   "adminSecretUrlForCert": {
      "value": "REPLACE_CERTURL"
    }
   }
