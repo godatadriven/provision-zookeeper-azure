@@ -25,7 +25,7 @@ Creating the keyvault and enable it for deployemnts:
 
 Generate a certificate for the nodes which we can add to the truststore and keystore:
 
-    openssl req -x509 -newkey rsa:2048 -keyout nifi-private-key.pem -out nifi-cert.pem -days 365 -subj "/CN=nifi/OU=NiFi" -nodes
+    openssl req -x509 -newkey rsa:2048 -keyout nifi-private-key.pem -out nifi-cert.pem -days 365 -subj "/CN=localhost/OU=NiFi" -nodes
     openssl pkcs12 -inkey nifi-private-key.pem -in nifi-cert.pem -export -out nifi.pfx -passout pass:'your_password'
 
 Upload the host certificate to the keyvault:

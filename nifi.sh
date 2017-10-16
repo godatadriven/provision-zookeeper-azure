@@ -132,7 +132,7 @@ createFolder $NIFI_REPOSITORIES/provenance_repository
 cd $NIFI_HOME_DIR/conf
 
 # create keystore
-nodesCertFile=`grep -l 'subject=/CN=nifi/OU=NiFi' /var/lib/waagent/*.crt`
+nodesCertFile=`grep -l 'subject=/CN=localhost/OU=NiFi' /var/lib/waagent/*.crt`
 filename="${nodesCertFile%.*}"
 nodesKeyFile=$filename'.prv'
 p12file=$filename'.p12'
