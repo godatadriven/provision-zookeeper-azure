@@ -134,14 +134,12 @@ cd $NIFI_HOME_DIR/conf
 # create keystore
 nodesCertFile=`grep -l 'subject=/CN=nifi/OU=NiFi' /var/lib/waagent/*.crt`
 filename="${nodesCertFile%.*}"
-nodesKeyFile=filename+'.key'
+nodesKeyFile=$filename'.prv'
+p12file=$filename'.p12'
 
-#keytool -genkeypair -alias nifi${1} -keyalg RSA -keypass ${3} -storepass ${3} -keystore server_keystore.jks -dname "CN=nifi$(($1))" -noprompt
-#keytool -export -alias nifi${1} -keystore server_keystore.jks -rfc -file test.cer -storepass ${3}
-#keytool -importcert -alias nifi${1} -file test.cer -keystore server_truststore.jks -storepass ${3} -noprompt
-
-
-
+openssl pkcs12 -export -in $nodesCertFile -inkey $nodesKeyFile -out $p12file -name "nifi" -CAfile ca.crt -caname root -passout pass:${3}
+keytool -importkeystore -deststorepass ${3} -destkeypass ${3} -destkeystore server_keystore.jks -srckeystore $p12file -srcstoretype PKCS12 -srcstorepass ${3} -alias 'nifi'
+keytool -importcert -alias "nifi" -file $nodesCertFile -keystore server_truststore.jks -storepass ${3} -noprompt
 
 # get admin user cert from keyvault and add truststore
 adminCertFile=`grep -l 'subject=/CN=NiFi Admin' /var/lib/waagent/*.crt`
