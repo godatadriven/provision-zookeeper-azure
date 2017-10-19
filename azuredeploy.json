@@ -82,22 +82,10 @@
         "description": "NiFi SSH rsa public key file as a string"
       }
     },
-    "keystorePassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Keystore password in the NiFi machines"
-      }
-    },
     "vaultName": {
       "type": "string",
       "metadata": {
         "description": "The Azure Key vault where the Nifi admin certificate is stored"
-      }
-    },
-    "hostSecretUrlForCert": {
-      "type": "string",
-      "metadata": {
-        "description": "full Key Vault Id to the secret that stores the host cert"
       }
     },
     "adminSecretUrlForCert": {
@@ -470,9 +458,6 @@
               "vaultCertificates": [
                 {
                   "certificateUrl": "[parameters('adminSecretUrlForCert')]"
-                },
-                {
-                  "certificateUrl": "[parameters('hostSecretUrlForCert')]"
                 }
               ]
             }
@@ -535,7 +520,7 @@
           "fileUris": [
             "[variables('nifiCustomScriptFilePath')]"
           ],
-          "commandToExecute": "[concat(variables('nifiCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('nifiNodeNumber'), ' ', parameters('keystorePassword'))]"
+          "commandToExecute": "[concat(variables('nifiCustomScriptCommandToExecute'), ' ', copyIndex(), ' ', parameters('nifiNodeNumber'))]"
         }
       }
     }

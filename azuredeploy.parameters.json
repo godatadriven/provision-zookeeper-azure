@@ -38,14 +38,8 @@
     "nifiAdminSshKeyData": {
       "value": "GEN-SSH-PUB-KEY"
     },
-    "keystorePassword": {
-      "value": "GEN-PASSWORD"
-    },
     "vaultName": {
       "value": "nifiCert"
-    },
-    "hostSecretUrlForCert": {
-      "value": "REPLACE_CERTURL"
     },
    "adminSecretUrlForCert": {
      "value": "REPLACE_CERTURL"

@@ -107,8 +107,8 @@ sysctl -p
 
 # install Java 8
 cd /tmp
-wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u144-b01/090f390dda5b47b9b721c7dfaa008135/jdk-8u144-linux-x64.rpm"
-yum -y localinstall jdk-8u144-linux-x64.rpm
+wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/9.0.1+11/jdk-9.0.1_linux-x64_bin.rpm"
+yum -y localinstall jdk-9.0.1_linux-x64_bin.rpm
 
 # Install NiFi
 cd $NIFI_INSTALL_ROOT
@@ -131,20 +131,6 @@ createFolder $NIFI_REPOSITORIES/provenance_repository
 
 cd $NIFI_HOME_DIR/conf
 
-# create keystore
-nodesCertFile=`grep -l 'subject=/CN=localhost/OU=NiFi' /var/lib/waagent/*.crt`
-filename="${nodesCertFile%.*}"
-nodesKeyFile=$filename'.prv'
-p12file=$filename'.p12'
-
-openssl pkcs12 -export -in $nodesCertFile -inkey $nodesKeyFile -out $p12file -name "nifi" -CAfile ca.crt -caname root -passout pass:${3}
-keytool -importkeystore -deststorepass ${3} -destkeypass ${3} -destkeystore server_keystore.jks -srckeystore $p12file -srcstoretype PKCS12 -srcstorepass ${3} -alias 'nifi'
-keytool -importcert -alias "nifi" -file $nodesCertFile -keystore server_truststore.jks -storepass ${3} -noprompt
-
-# get admin user cert from keyvault and add truststore
-adminCertFile=`grep -l 'subject=/CN=NiFi Admin' /var/lib/waagent/*.crt`
-keytool -importcert -v -trustcacerts -alias 'NiFi Admin' -file $adminCertFile -keystore /opt/nifi-1.3.0/conf/server_truststore.jks  -storepass ${3} -noprompt
-
 # set config files
 NIFI_CONFIGURATION_FILE=$NIFI_HOME_DIR/conf/nifi.properties
 
@@ -165,13 +151,10 @@ sed -i "s/\(nifi\.cluster\.node\.address=\).*/\1nifi$(($1))/g" $NIFI_CONFIGURATI
 sed -i "s/\(nifi\.cluster\.node\.protocol\.port=\).*/\112000/g" $NIFI_CONFIGURATION_FILE
 sed -i "s/\(nifi\.zookeeper\.root\.node=\).*/\1\/root\/nifi/g" $NIFI_CONFIGURATION_FILE
 
-sed -i "s|\(nifi\.security\.keystore=\).*|\1$NIFI_HOME_DIR\/conf\/server_keystore.jks|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.security\.keystore=\).*|\1$NIFI_HOME_DIR\/conf\/keystore.jks|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.keystoreType=\).*|\1JKS|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.keystorePasswd=\).*|\1"$3"|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.keyPasswd=\).*|\1"$3"|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.truststore=\).*|\1$NIFI_HOME_DIR\/conf\/server_truststore.jks|g" $NIFI_CONFIGURATION_FILE
+sed -i "s|\(nifi\.security\.truststore=\).*|\1$NIFI_HOME_DIR\/conf\/truststore.jks|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.truststoreType=\).*|\1JKS|g" $NIFI_CONFIGURATION_FILE
-sed -i "s|\(nifi\.security\.truststorePasswd=\).*|\1"$3"|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.security\.needClientAuth=\).*|\1true|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.remote\.input\.secure=\).*|\1true|g" $NIFI_CONFIGURATION_FILE
 sed -i "s|\(nifi\.cluster\.protocol\.is\.secure=\).*|\1true|g" $NIFI_CONFIGURATION_FILE
@@ -191,4 +174,4 @@ do
 done
 
 
-$NIFI_HOME_DIR/bin/nifi.sh start
+#$NIFI_HOME_DIR/bin/nifi.sh start
