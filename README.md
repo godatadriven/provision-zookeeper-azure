@@ -19,18 +19,9 @@ The NiFi cluster is secured using certificates.
 
 We obtain the NiFi admin and host certificate from a keyvault, so before we deploy this template, we need to create the keyvault and the certificates.
 
-Creating the keyvault and enable it for deployemnts:
+Creating the keyvault and enable it for deployments:
 
     az keyvault create --name nifiCerts --enabled-for-deployment true --resource-group <resource_group>
-
-Generate a certificate for the nodes which we can add to the truststore and keystore:
-
-    openssl req -x509 -newkey rsa:2048 -keyout nifi-private-key.pem -out nifi-cert.pem -days 365 -subj "/CN=localhost/OU=NiFi" -nodes
-    openssl pkcs12 -inkey nifi-private-key.pem -in nifi-cert.pem -export -out nifi.pfx -passout pass:'your_password'
-
-Upload the host certificate to the keyvault:
-    
-    az keyvault certificate import --vault-name nifiCerts --name nifiCert --file ./nifi.pfx --password 'your_password'
 
 Create the NiFi Admin certificate and import to KeyVault:
 
@@ -38,12 +29,30 @@ Create the NiFi Admin certificate and import to KeyVault:
     openssl pkcs12 -inkey admin-private-key.pem -in admin-cert.pem -export -out admin-user.pfx -passout pass:'your_password'
     az keyvault certificate import --vault-name nifiCerts --name adminCert --file ./admin-user.pfx --password 'your_password'
     
+Deploy the machines. This won't start NiFi, because we need to add the certificates to the NiFi machines.
 
-#### Adding another certificate to the truststore
- 
-If you need to add another certificate to the NiFi server, you should generate the certificate with the above mentioned commands, then you need to copy the certificate to the servers and add it to the truststore on the servers:
+On a machine download the tls-toolkit (https://www.apache.org/dyn/closer.lua?path=/nifi/1.4.0/nifi-toolkit-1.4.0-bin.tar.gz). Unpack it and generate certificates for your machines:
 
-    keytool -importcert -v -trustcacerts -alias username -file admin-cert.pem -keystore /opt/nifi-1.3.0/conf/server_truststore.jks  -storepass 'keystore password' -noprompt
+
+    ./bin/tls-toolkit.sh standalone -n 'nifi[0-2]' -C 'CN=admin,OU=NIFI' -O -o ../security_output
     
-After this you will need to restart the NiFi cluster.    
+Now make sure that you copy the correct certificates to the correct machines (i.e. keystore.jks and truststore.jks from the nifi<x> folder should be copied to nifi<X> machine ). On the nifi<X> machine you need to do the following:
+
+- copy keystore.jks and truststore.jks to /opt/nifi-1.3.0/conf
+- `chown root:root /opt/nifi-1.3.0/conf/*.jks`
+- open the nifi.properties file on the machine and add the keystore and truststore properies which were generated in the nifi<X>/nifi.properties file on the machine where you ran the tsl-toolkit command. You'll have to adjust the following propertiesL
+
+    nifi.security.keystorePasswd=<password>
+    nifi.security.keyPasswd=<password>
+    nifi.security.truststorePasswd=<password>
+    
+- add the admin user (whose credentials we received from the keyvault to the truststore). To do this you will need the truststore password of the given machine:
+
+    adminCertFile=`grep -l 'subject=/CN=NiFi Admin' /var/lib/waagent/*.crt`		
+    keytool -importcert -v -trustcacerts -alias 'NiFi Admin' -file $adminCertFile -keystore /opt/nifi-1.3.0/conf/truststore.jks 
+         
+- start nifi on each machine
+
+    /opt/nifi-1.3.0/bin/nifi.sh start
+  
  

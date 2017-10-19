@@ -169,9 +169,7 @@ sed -i "s|\(property name=\"Initial Admin Identity\">\).*|\1L=Utrecht, C=NL, CN=
 for (( c=0; c<$2; c++ ))
 do
     sed -i '/<\/authorizer>/i \
-    <property name="Node Identity '$c'">CN=nifi'$c'<\/property>
+    <property name="Node Identity '$c'">CN=nifi'$c', OU=NIFI<\/property>
     ' $NIFI_HOME_DIR/conf/authorizers.xml
 done
 
-
-#$NIFI_HOME_DIR/bin/nifi.sh start
