@@ -79,7 +79,7 @@ if [ ! -d "$FIRST_DISK" ]; then
 fi
 
 NIFI_DATA_DIR=${FIRST_DISK}/data
-NIFI_VERSION=1.3.0
+NIFI_VERSION=1.4.0
 
 # increase number of file handles and forked processes
 
