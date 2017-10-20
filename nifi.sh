@@ -108,7 +108,7 @@ sysctl -p
 # install Java 8
 cd /tmp
 wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.rpm"
-yum -y localinstall jdk-9.0.1_linux-x64_bin.rpm
+yum -y localinstall jdk-8u151-linux-x64.rpm
 
 # Install NiFi
 cd $NIFI_INSTALL_ROOT
