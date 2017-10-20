@@ -38,8 +38,8 @@ On a machine download the tls-toolkit (https://www.apache.org/dyn/closer.lua?pat
     
 Now make sure that you copy the correct certificates to the correct machines (i.e. keystore.jks and truststore.jks from the nifi<x> folder should be copied to nifi<X> machine ). On the nifi<X> machine you need to do the following:
 
-- copy keystore.jks and truststore.jks to /opt/nifi-1.3.0/conf
-- `chown root:root /opt/nifi-1.3.0/conf/*.jks`
+- copy keystore.jks and truststore.jks to /opt/nifi-1.4.0/conf
+- `chown root:root /opt/nifi-1.4.0/conf/*.jks`
 - open the nifi.properties file on the machine and add the keystore and truststore properies which were generated in the nifi<X>/nifi.properties file on the machine where you ran the tsl-toolkit command. You'll have to adjust the following propertiesL
 
     nifi.security.keystorePasswd=<password>
@@ -49,7 +49,7 @@ Now make sure that you copy the correct certificates to the correct machines (i.
 - add the admin user (whose credentials we received from the keyvault to the truststore). To do this you will need the truststore password of the given machine:
 
     adminCertFile=`grep -l 'subject=/CN=NiFi Admin' /var/lib/waagent/*.crt`		
-    keytool -importcert -v -trustcacerts -alias 'NiFi Admin' -file $adminCertFile -keystore /opt/nifi-1.3.0/conf/truststore.jks 
+    keytool -importcert -v -trustcacerts -alias 'NiFi Admin' -file $adminCertFile -keystore /opt/nifi-1.4.0/conf/truststore.jks 
          
 - start nifi on each machine
 
