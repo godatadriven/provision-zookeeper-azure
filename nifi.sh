@@ -166,9 +166,11 @@ sed -i "s/\(nifi\.web\.https\.port=\).*/\18443/g" $NIFI_CONFIGURATION_FILE
 
 sed -i "s|\(property name=\"Initial Admin Identity\">\).*|\1L=Utrecht, C=NL, CN=NiFi Admin</property>|g" $NIFI_HOME_DIR/conf/authorizers.xml
 
+sed -i "s|\(property name=\"Node Identity 1\">\).*||g" $NIFI_HOME_DIR/conf/authorizers.xml
+
 for (( c=0; c<$2; c++ ))
 do
-    sed -i '/<\/authorizer>/i \
+    sed -i '/<\/accessPolicyProvider>/i \
     <property name="Node Identity '$c'">CN=nifi'$c', OU=NIFI<\/property>
     ' $NIFI_HOME_DIR/conf/authorizers.xml
 done
